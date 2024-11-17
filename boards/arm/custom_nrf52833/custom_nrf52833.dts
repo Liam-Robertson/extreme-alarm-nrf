@@ -18,45 +18,52 @@
     };
 };
 
+&pinctrl {
+    spi0_default: spi0_default {
+        group1 {
+            psels = <NRF_PSEL(SPIM_SCK, 0, 3)>,   // P0.03 for SCK
+                    <NRF_PSEL(SPIM_MOSI, 0, 4)>,  // P0.04 for MOSI
+                    <NRF_PSEL(SPIM_MISO, 0, 28)>; // P0.28 for MISO
+        };
+    };
+
+    i2s0_default: i2s0_default {
+        group1 {
+            psels = <5>,   // P0.05 for SCK
+                    <6>,   // P0.06 for LRCK
+                    <7>;   // P0.07 for SDOUT
+        };
+    };
+};
+
 &spi0 {
     status = "okay";
-    psel-sck = <2>;      // SPI CLK (P0.02)
-    psel-mosi = <19>;    // SPI MOSI (P0.19)
-    psel-miso = <37>;    // SPI MISO (P1.05)
+    pinctrl-0 = <&spi0_default>;
+    pinctrl-names = "default";
+
     cs-gpios = <&gpio0 25 GPIO_ACTIVE_LOW>; // CS (P0.25)
 
     spi_flash: flash@0 {
         compatible = "jedec,spi-nor";
         reg = <0>;
-        label = "SPI_FLASH";
         spi-max-frequency = <8000000>; // Adjust as needed
-    };
-};
-
-&pinctrl {
-    spi0_default: spi0_default {
-        group1 {
-            psels = <NRF_PSEL(SPIM_SCK, 0, 2)>,   // P0.02
-                    <NRF_PSEL(SPIM_MOSI, 0, 19)>, // P0.19
-                    <NRF_PSEL(SPIM_MISO, 1, 5)>;  // P1.05
-        };
-        group2 {
-            psels = <NRF_PSEL(GPIO, 0, 25)>;      // P0.25 for CS
-            flags = <GPIO_ACTIVE_LOW>;
-        };
     };
 };
 
 &i2s0 {
     status = "okay";
-    psel-sck = <5>;      // P0.05
-    psel-lrck = <6>;     // P0.06
-    psel-sdin = <0xffffffff>; // Not used
-    psel-sdout = <7>;    // P0.07
-    mck-frequency = <0x02000000>; // 2 MHz
-    ratio = <0>;         // I2S_RATIO_64X
-    format = <0>;        // I2S_FORMAT_I2S
-    alignment = <0>;     // I2S_ALIGN_LEFT
-    channels = <0>;      // I2S_CHANNELS_LEFT
-    bits = <0>;          // I2S_BITS_16
+    pinctrl-0 = <&i2s0_default>;
+    pinctrl-names = "default";
+
+    sck-pin = <5>;         // P0.05
+    lrck-pin = <6>;        // P0.06
+    sdin-pin = <0xffffffff>; // Not used
+    sdout-pin = <7>;       // P0.07
+    mck-pin = <0xffffffff>;  // Not used
+    clock-source = <0>;    // Optional: Remove if not required
+    ratio = <64>;          // I2S ratio (64x)
+    format = <1>;          // Standard I2S format
+    alignment = <0>;       // Left alignment
+    channels = <1>;        // Single channel (left)
+    width = <16>;          // 16-bit word size
 };
