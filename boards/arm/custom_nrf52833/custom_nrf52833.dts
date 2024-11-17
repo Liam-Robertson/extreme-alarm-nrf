@@ -1,0 +1,62 @@
+// custom_nrf52833.dts
+
+/dts-v1/;
+#include <nordic/nrf52833_qiaa.dtsi>
+
+/ {
+    model = "Custom nRF52833 Board";
+    compatible = "nordic,nrf52833-qiaa";
+
+    chosen {
+        zephyr,console = &uart0;
+    };
+
+    aliases {
+        spi0 = &spi0;
+        spi-flash = &spi_flash;
+        i2s0 = &i2s0;
+    };
+};
+
+&spi0 {
+    status = "okay";
+    psel-sck = <2>;      // SPI CLK (P0.02)
+    psel-mosi = <19>;    // SPI MOSI (P0.19)
+    psel-miso = <37>;    // SPI MISO (P1.05)
+    cs-gpios = <&gpio0 25 GPIO_ACTIVE_LOW>; // CS (P0.25)
+
+    spi_flash: flash@0 {
+        compatible = "jedec,spi-nor";
+        reg = <0>;
+        label = "SPI_FLASH";
+        spi-max-frequency = <8000000>; // Adjust as needed
+    };
+};
+
+&pinctrl {
+    spi0_default: spi0_default {
+        group1 {
+            psels = <NRF_PSEL(SPIM_SCK, 0, 2)>,   // P0.02
+                    <NRF_PSEL(SPIM_MOSI, 0, 19)>, // P0.19
+                    <NRF_PSEL(SPIM_MISO, 1, 5)>;  // P1.05
+        };
+        group2 {
+            psels = <NRF_PSEL(GPIO, 0, 25)>;      // P0.25 for CS
+            flags = <GPIO_ACTIVE_LOW>;
+        };
+    };
+};
+
+&i2s0 {
+    status = "okay";
+    psel-sck = <5>;      // P0.05
+    psel-lrck = <6>;     // P0.06
+    psel-sdin = <0xffffffff>; // Not used
+    psel-sdout = <7>;    // P0.07
+    mck-frequency = <0x02000000>; // 2 MHz
+    ratio = <0>;         // I2S_RATIO_64X
+    format = <0>;        // I2S_FORMAT_I2S
+    alignment = <0>;     // I2S_ALIGN_LEFT
+    channels = <0>;      // I2S_CHANNELS_LEFT
+    bits = <0>;          // I2S_BITS_16
+};
